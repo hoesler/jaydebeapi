@@ -7,18 +7,35 @@
 # it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # JayDeBeApi is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with JayDeBeApi.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-__version_info__ = (1, 1, 2)
-__version__ = ".".join(str(i) for i in __version_info__)
+__version_info__ = {
+    'major': 1,
+    'minor': 1,
+    'micro': 2,
+    'pre_release': 'pre1',
+    'local_version': 'concardis-0001'
+}
+
+def get_version():
+    vers = ["%(major)i.%(minor)i" % __version_info__, ]
+    if __version_info__['micro']:
+        vers.append(".%(micro)i" % __version_info__)
+    if __version_info__['pre_release']:
+        vers.append("-%(pre_release)s" % __version_info__)
+    if __version_info__['local_version']:
+        vers.append("+%(local_version)s" % __version_info__)
+    return ''.join(vers)
+
+__version__ = get_version()
 
 import datetime
 import glob
@@ -156,7 +173,7 @@ def _handle_sql_exception_jpype():
     else:
         exc_type = InterfaceError
     reraise(exc_type, exc_info[1], exc_info[2])
-    
+
 def _jdbc_connect_jpype(jclassname, url, driver_args, jars, libs):
     import jpype
     if not jpype.isJVMStarted():
@@ -519,14 +536,14 @@ class Cursor(object):
         if use_prepared_statements:
             self._prep = self._connection.jconn.prepareStatement(operation)
             self._set_stmt_parms(self._prep, parameters)
-            
+
             try:
                 is_rs = self._prep.execute()
             except:
                 _handle_sql_exception()
         else:
             self._prep = self._connection.jconn.createStatement()
-            
+
             try:
                 is_rs = self._prep.execute(operation)
             except:
